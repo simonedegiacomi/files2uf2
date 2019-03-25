@@ -28,12 +28,12 @@ public class UF2BlocksUtils {
        }
    }
 
-    public static void fileToUF2(List<FileWithNameInContainer> files, File uf2) throws IOException {
+    public static void packFilesToUF2(List<FileWithNameInContainer> files, File uf2) throws IOException {
         OutputStream out = new FileOutputStream(uf2);
 
         for (FileWithNameInContainer file : files) {
-            List<byte[]> content = fileToPayloadSizeByteArrays(file.file);
-            List<byte[]> uf2Blocks = fileToUF2(file.nameInContainer, content);
+            List<byte[]> content = fileToByteArrays(file.file, UF2_BLOCK_PAYLOAD_SIZE);
+            List<byte[]> uf2Blocks = packFilesToUF2(file.nameInContainer, content);
 
             for (byte[] uf2Block : uf2Blocks) {
                 out.write(uf2Block);
@@ -43,7 +43,7 @@ public class UF2BlocksUtils {
         out.close();
     }
 
-    private static List<byte[]> fileToUF2(String fileName, List<byte[]> fileBlocks) throws IOException {
+    private static List<byte[]> packFilesToUF2(String fileName, List<byte[]> fileBlocks) throws IOException {
         byte[] fileNameBytes    = fileName.getBytes(StandardCharsets.UTF_8);
         int blocksCount         = fileBlocks.size();
         List<byte[]> uf2Blocks  = new ArrayList<>(blocksCount);
@@ -77,14 +77,40 @@ public class UF2BlocksUtils {
         return uf2Blocks;
     }
 
-    private static List<byte[]> fileToPayloadSizeByteArrays(File file) throws IOException {
+    public static void unpackUF2ToFolder (File uf2, File destinationFolder) throws IOException {
+        List<byte[]> uf2Blocks = fileToByteArrays(uf2, UF2_BLOCK_SIZE);
+
+        String currentFileName = null;
+        List<byte[]> currentPayload = new ArrayList<>();
+
+        for (byte[] uf2Block : uf2Blocks) {
+            String fileName = getString(uf2Block, 32 + UF2_BLOCK_PAYLOAD_SIZE, 512 - 4);
+            byte[] payload = getBytes(uf2Block, 32, 32 + UF2_BLOCK_PAYLOAD_SIZE);
+
+            if (fileName.equals(currentFileName)) {
+                currentPayload.add(payload);
+            } else {
+                if (currentFileName != null) {
+                    writeFile(currentPayload, destinationFolder, currentFileName);
+                }
+
+                currentPayload.clear();
+                currentPayload.add(payload);
+                currentFileName = fileName;
+            }
+        }
+
+        writeFile(currentPayload, destinationFolder, currentFileName);
+    }
+
+    private static List<byte[]> fileToByteArrays(File file, int arraysSize) throws IOException {
         List<byte[]> blocks = new ArrayList<>();
-        byte[] buffer = new byte[UF2_BLOCK_PAYLOAD_SIZE];
+        byte[] buffer = new byte[arraysSize];
 
         InputStream in = new FileInputStream(file);
 
         while (in.available() > 0) {
-            int read = in.read(buffer, 0, UF2_BLOCK_PAYLOAD_SIZE);
+            int read = in.read(buffer, 0, arraysSize);
             blocks.add(Arrays.copyOfRange(buffer, 0, read));
         }
 
@@ -105,5 +131,37 @@ public class UF2BlocksUtils {
 
     private static byte[] intTo4Bytes(int value) {
         return ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(value).array();
+    }
+
+    private static String getString (byte[] bytes, int from, int maxTo) {
+       int tempSize = maxTo - from;
+       byte[] temp = new byte[tempSize];
+       System.arraycopy(bytes, from, temp, 0, tempSize - 1);
+
+       for (int i = 0; i < tempSize; i++) {
+           if (temp[i] == 0) {
+               temp = Arrays.copyOfRange(temp, 0, i);
+               break;
+           }
+       }
+
+       return new String(temp, StandardCharsets.UTF_8);
+    }
+
+    private static byte[] getBytes (byte[] bytes, int from, int to) {
+       return Arrays.copyOfRange(bytes, from, to);
+    }
+
+    private static void writeFile(List<byte[]> content, File container, String nameInContainer) throws IOException {
+       String completeName = container.getPath() + File.separator + nameInContainer;
+       File file = new File(completeName);
+       file.getParentFile().mkdirs();
+       OutputStream out = new FileOutputStream(file);
+
+       for (byte[] bytes : content) {
+           out.write(bytes);
+       }
+
+       out.close();
     }
 }
