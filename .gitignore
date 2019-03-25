@@ -51,3 +51,8 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+.idea/
+files2uf2.iml
+src/main/resources/
+src/test/
+target/generated-sources/
