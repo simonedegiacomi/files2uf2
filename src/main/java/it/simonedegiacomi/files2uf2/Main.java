@@ -28,14 +28,15 @@ public class Main {
 
     private static void packFiles() throws IOException {
         UF2BlocksUtils.packFilesToUF2(sourceFiles, destinationFile);
+        System.out.println("UF2 file successfully created");
     }
 
     private static void unpackFiles() throws IOException {
         UF2BlocksUtils.unpackUF2ToFolder(uf2SourceFile, destinationFile);
+        System.out.println("UF2 file successfully extracted");
     }
 
     private static void parseArgs(String[] args) {
-        System.out.println(Arrays.toString(args));
         if (args.length < 3) {
             printUsageAndExit();
         }
