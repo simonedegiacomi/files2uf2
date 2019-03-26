@@ -24,7 +24,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>it.simonedegiacomi.Main</mainClass>
+                            <mainClass>it.simonedegiacomi.files2uf2.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

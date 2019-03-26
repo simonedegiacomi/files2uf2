@@ -1,4 +1,4 @@
-package it.simonedegiacomi;
+package it.simonedegiacomi.files2uf2;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -72,6 +72,8 @@ public class Main {
     private static void printUsageAndExit() {
         System.out.println("usage: files2uf2 pack <<file> <name in container>> output |");
         System.out.println("\t\t unpack <uf2 file> <destination folder>");
+        System.out.println();
+        System.out.println("Description: this tool can create (pack) or read (unpack) UF2 files in the 'file container' mode.");
         System.out.println();
         System.out.println("Pack example:");
         System.out.println("\tCreate a UF2 file which contains two files present in the 'build' folder and name them");
