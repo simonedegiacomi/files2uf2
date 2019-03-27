@@ -1,7 +1,7 @@
 # Files to UF2
 
 This tool can be used to manage UF2 files in the "file container" mode.
-I particular, it can:
+In particular, it can:
 
 - Create a new UF2 to contain one or more files;
 - Read a UF2 file and extract the files it contains;
