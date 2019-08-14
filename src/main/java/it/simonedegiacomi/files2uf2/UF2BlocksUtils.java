@@ -25,10 +25,11 @@ public class UF2BlocksUtils {
     private static final int OFFSET_MAGIC_CONSTANT_1 = 0;
     private static final int OFFSET_MAGIC_CONSTANT_2 = 4;
     private static final int OFFSET_FLAGS = 8;
-    private static final int OFFSET_FILE_SIZE = 28;
     private static final int OFFSET_OFFSET_CURRENT_FILE = 12;
     private static final int OFFSET_BLOCK_PAYLOAD_SIZE = 16;
-    private static final int OFFSET_CURRENT_FILE_BLOCKS_COUNT = 20;
+    private static final int OFFSET_CURRENT_FILE_SEQUENTIAL_BLOCK_COUNT = 20;
+    private static final int OFFSET_CURRENT_FILE_BLOCKS_COUNT = 24;
+    private static final int OFFSET_FILE_SIZE = 28;
 
     /**
      * Describe a file to pack into a UF2 file.
@@ -78,6 +79,7 @@ public class UF2BlocksUtils {
             setWord(uf2Block, OFFSET_FLAGS, UF2_FILE_CONTAINER_FLAG);
             setWord(uf2Block, OFFSET_OFFSET_CURRENT_FILE, i * DEFAULT_UF2_BLOCK_PAYLOAD_SIZE);
             setWord(uf2Block, OFFSET_BLOCK_PAYLOAD_SIZE, DEFAULT_UF2_BLOCK_PAYLOAD_SIZE); // length
+            setWord(uf2Block, OFFSET_CURRENT_FILE_SEQUENTIAL_BLOCK_COUNT, i);
             setWord(uf2Block, OFFSET_CURRENT_FILE_BLOCKS_COUNT, blocksCount);
             setWord(uf2Block, OFFSET_FILE_SIZE, fileSize);
 
