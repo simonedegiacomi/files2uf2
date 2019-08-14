@@ -30,8 +30,8 @@ public class Main {
             UF2BlocksUtils.packFilesToUF2(sourceFiles, destinationFile);
             System.out.println("UF2 file successfully created");
         } catch ( Exception e ) {
-            System.out.println("error while creating the uf2 file:" + e.getMessage());
-            e.printStackTrace();
+            System.out.println("error while creating the uf2 file: " + e.getMessage());
+            System.exit(1);
         }
     }
 
@@ -40,8 +40,8 @@ public class Main {
             UF2BlocksUtils.unpackUF2ToFolder(uf2SourceFile, destinationFile);
             System.out.println("UF2 file successfully extracted");
         }  catch ( Exception e ) {
-            System.out.println("error while unpacking the uf2 file:" + e.getMessage());
-            e.printStackTrace();
+            System.out.println("error while unpacking the uf2 file: " + e.getMessage());
+            System.exit(1);
         }
     }
 
