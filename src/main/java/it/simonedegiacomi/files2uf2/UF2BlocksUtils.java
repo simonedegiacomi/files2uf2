@@ -15,7 +15,7 @@ import java.util.List;
 public class UF2BlocksUtils {
 
     private static final int UF2_BLOCK_SIZE = 512;
-    private static final int UF2_BLOCK_PAYLOAD_SIZE = 256;
+    private static final int DEFAULT_UF2_BLOCK_PAYLOAD_SIZE = 256;
 
     private static final int UF2_START_BLOCK_MAGIC_CONSTANT_1 = 0x0A324655;
     private static final int UF2_START_BLOCK_MAGIC_CONSTANT_2 = 0x9E5D5157;
@@ -51,7 +51,7 @@ public class UF2BlocksUtils {
         OutputStream out = new FileOutputStream(uf2);
 
         for (FileWithNameInContainer file : files) {
-            List<byte[]> content = fileToByteArrays(file.file, UF2_BLOCK_PAYLOAD_SIZE);
+            List<byte[]> content = fileToByteArrays(file.file, DEFAULT_UF2_BLOCK_PAYLOAD_SIZE);
             List<byte[]> uf2Blocks = packFilesToUF2(file.nameInContainer, content);
 
             for (byte[] uf2Block : uf2Blocks) {
@@ -76,8 +76,8 @@ public class UF2BlocksUtils {
             setWord(uf2Block, OFFSET_MAGIC_CONSTANT_1, UF2_START_BLOCK_MAGIC_CONSTANT_1);
             setWord(uf2Block, OFFSET_MAGIC_CONSTANT_2, UF2_START_BLOCK_MAGIC_CONSTANT_2);
             setWord(uf2Block, OFFSET_FLAGS, UF2_FILE_CONTAINER_FLAG);
-            setWord(uf2Block, OFFSET_OFFSET_CURRENT_FILE, i * UF2_BLOCK_PAYLOAD_SIZE);
-            setWord(uf2Block, OFFSET_BLOCK_PAYLOAD_SIZE, UF2_BLOCK_PAYLOAD_SIZE); // length
+            setWord(uf2Block, OFFSET_OFFSET_CURRENT_FILE, i * DEFAULT_UF2_BLOCK_PAYLOAD_SIZE);
+            setWord(uf2Block, OFFSET_BLOCK_PAYLOAD_SIZE, DEFAULT_UF2_BLOCK_PAYLOAD_SIZE); // length
             setWord(uf2Block, OFFSET_CURRENT_FILE_BLOCKS_COUNT, blocksCount);
             setWord(uf2Block, OFFSET_FILE_SIZE, fileSize);
 
@@ -85,7 +85,7 @@ public class UF2BlocksUtils {
             setBytes(uf2Block, 32, fileBlock);
 
             // File name
-            setBytes(uf2Block, 32 + UF2_BLOCK_PAYLOAD_SIZE, fileNameBytes);
+            setBytes(uf2Block, 32 + DEFAULT_UF2_BLOCK_PAYLOAD_SIZE, fileNameBytes);
 
             // Footer
             setWord(uf2Block, 512 - 4, UF2_END_BLOCK_MAGIC_CONSTANT);
@@ -105,8 +105,9 @@ public class UF2BlocksUtils {
         for (byte[] uf2Block : uf2Blocks) {
             assertUF2BlockInContainerMode(uf2Block);
 
-            String fileName = getString(uf2Block, 32 + UF2_BLOCK_PAYLOAD_SIZE, 512 - 4);
-            byte[] payload = getBytes(uf2Block, 32, 32 + UF2_BLOCK_PAYLOAD_SIZE);
+            int payloadSize = getWord(uf2Block, OFFSET_BLOCK_PAYLOAD_SIZE);
+            String fileName = getString(uf2Block, 32 + payloadSize, 512 - 4);
+            byte[] payload = getBytes(uf2Block, 32, 32 + payloadSize);
 
             if (fileName.equals(currentFileName)) {
                 currentPayload.add(payload);
